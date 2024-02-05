@@ -51,7 +51,7 @@ pub fn generate_message() -> Result<Message, error::Error> {
     Ok(Message(m))
 }
 
-pub fn sign(mut m: Message, mut sk: SecretKey) -> Result<SignedMessage, error::Error> {
+pub fn sign(m: &Message, sk: &SecretKey) -> Result<SignedMessage, error::Error> {
     let mut sm: [u8; MLEN + CRYPTO_BYTES] = [0; MLEN + CRYPTO_BYTES];
     let mut smlen: usize = 0;
 
@@ -59,9 +59,9 @@ pub fn sign(mut m: Message, mut sk: SecretKey) -> Result<SignedMessage, error::E
         ffi::pqcrystals_dilithium2_ref(
             sm.as_mut_ptr(),
             &mut smlen as *mut usize,
-            m.0.as_mut_ptr(),
+            m.0.as_ptr(),
             MLEN,
-            sk.0.as_mut_ptr(),
+            sk.0.as_ptr(),
         );
         // println!("smlen:{:?}",smlen);
     }
@@ -71,11 +71,7 @@ pub fn sign(mut m: Message, mut sk: SecretKey) -> Result<SignedMessage, error::E
     })
 }
 
-pub fn verify_sign(
-    m: Message,
-    mut sm: SignedMessage,
-    mut pk: PublicKey,
-) -> Result<i32, error::Error> {
+pub fn verify_sign(m: &Message, sm: &SignedMessage, pk: &PublicKey) -> Result<i32, error::Error> {
     let result;
     let mut m2: [u8; MLEN + CRYPTO_BYTES] = [0; MLEN + CRYPTO_BYTES];
 
@@ -86,9 +82,9 @@ pub fn verify_sign(
         result = ffi::pqcrystals_dilithium2_ref_open(
             m2.as_mut_ptr(),
             &mut mlen as *mut usize,
-            sm.signed_message_data.as_mut_ptr(),
+            sm.signed_message_data.as_ptr(),
             smlen,
-            pk.0.as_mut_ptr(),
+            pk.0.as_ptr(),
         )
     }
 

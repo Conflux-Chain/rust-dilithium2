@@ -8,9 +8,9 @@ fn main() {
     println!("public_key:{:?}", key_pair.public_key);
     println!("secret_key:{:?}", key_pair.secret_key);
 
-    let signed_message = sign::sign(message.clone(), key_pair.secret_key.clone()).unwrap();
+    let signed_message = sign::sign(&message, &key_pair.secret_key).unwrap();
     println!("signed_message:{:?}", signed_message);
 
-    let result = sign::verify_sign(message.clone(), signed_message, key_pair.public_key.clone());
+    let result = sign::verify_sign(&message, &signed_message, &key_pair.public_key);
     println!("result:{:?}", result);
 }
