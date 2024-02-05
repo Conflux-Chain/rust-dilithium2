@@ -4,4 +4,4 @@ pub const CRYPTO_PUBLICKEYBYTES: usize = 1312;
 pub const CRYPTO_SECRETKEYBYTES: usize = 2544;
 
 // Message length
-pub const MLEN: usize = 10; 
+pub const MLEN: usize = 10;

@@ -1,5 +1,5 @@
 [package]
-name = "dilithium2_from_c"
+name = "rust-dilithium2"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,3 +13,7 @@ libloading = "0.8.0"
 cc = { version = "1.0"}
 bindgen = "0.65.1"
 
+[[bin]]
+name = "example"
+test = false
+bench = false

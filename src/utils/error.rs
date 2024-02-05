@@ -62,14 +62,19 @@ impl fmt::Display for Error {
 }
 
 impl error::Error for Error {
-    fn description(&self) -> &str { "Crypto error" }
+    fn description(&self) -> &str {
+        "Crypto error"
+    }
 }
 
 impl Into<String> for Error {
-    fn into(self) -> String { format!("{}", self) }
+    fn into(self) -> String {
+        format!("{}", self)
+    }
 }
 
-
 impl From<::std::io::Error> for Error {
-    fn from(err: ::std::io::Error) -> Error { Error::Io(err) }
+    fn from(err: ::std::io::Error) -> Error {
+        Error::Io(err)
+    }
 }
