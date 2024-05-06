@@ -10,7 +10,7 @@ KECCAK_HEADERS = $(HEADERS) fips202.h
 AES_SOURCES = $(SOURCES) fips202.c aes256ctr.c symmetric-aes.c
 AES_HEADERS = $(HEADERS) fips202.h aes256ctr.h
 
-.PHONY: all speed shared clean test/test_dilithium2aes
+.PHONY: all speed shared clean test/test_dilithium2aes libpqcrystals_dilithium2_ref.so test/test_dilithium2
 
 all: PQCgenKAT_sign
 
@@ -39,9 +39,13 @@ libpqcrystals_fips202_ref.so: fips202.c fips202.h
 libpqcrystals_aes256ctr_ref.so: aes256ctr.c aes256ctr.h
 	$(CC) -shared -fPIC $(CFLAGS) -o $@ $<
 
-libpqcrystals_dilithium2_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+#libpqcrystals_dilithium2_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
+#	$(CC) -shared -fPIC $(CFLAGS) -DDILITHIUM_MODE=2 \
+#	  -o $@ $(SOURCES) symmetric-shake.c
+
+libpqcrystals_dilithium2_ref.so:  $(SOURCES) $(HEADERS) symmetric-shake.c 
 	$(CC) -shared -fPIC $(CFLAGS) -DDILITHIUM_MODE=2 \
-	  -o $@ $(SOURCES) symmetric-shake.c
+	  -o $@ $(SOURCES) symmetric-shake.c fips202.c randombytes.c
 
 libpqcrystals_dilithium3_ref.so: $(SOURCES) $(HEADERS) symmetric-shake.c
 	$(CC) -shared -fPIC $(CFLAGS) -DDILITHIUM_MODE=3 \
