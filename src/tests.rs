@@ -9,7 +9,7 @@ fn test_sign() {
     //println!("key_pair:{:?}", key_pair);
 
     let signed_message = sign::sign(&message, &key_pair.secret_key).unwrap();
-    //println!("signed_message:{:?}", signed_message);
+    println!("signed_message:{:?}", signed_message.data.len());
 
     let result = sign::verify_sign(&message, &signed_message, &key_pair.public_key).unwrap();
     print!("result:{:?}", result);

@@ -12,8 +12,17 @@ pub struct Message{
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct SignedMessage {
-    pub smlen: usize,
     pub data: Vec<u8>,
+}
+
+impl SignedMessage {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, error::Error> {
+        Ok(Self { data: bytes.to_vec() })
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.data.as_ref()
+    }
 }
 
 #[repr(C)]
@@ -22,17 +31,61 @@ pub struct PublicKey{
     pub data: Vec<u8>,
 }
 
+impl PublicKey{
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, error::Error> {
+        if bytes.len() != CRYPTO_PUBLICKEYBYTES {
+            Err(error::Error::InvalidPublic)
+        } else {
+            Ok(Self { data: bytes.to_vec() })
+        }
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.data.as_ref()
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct SecretKey{
     data: Vec<u8>,
 }
 
+impl SecretKey{
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, error::Error> {
+        if bytes.len() != CRYPTO_SECRETKEYBYTES {
+            Err(error::Error::InvalidSecret)
+        } else {
+            Ok(Self { data: bytes.to_vec() })
+        }
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.data.as_ref()
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct KeyPair {
-    pub public_key: PublicKey,
     pub secret_key: SecretKey,
+    pub public_key: PublicKey,
+}
+
+impl KeyPair {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, error::Error> {
+        if bytes.len() != CRYPTO_SECRETKEYBYTES + CRYPTO_PUBLICKEYBYTES {
+            Err(error::Error::InvalidSecret)
+        } else {
+            let secret_key = SecretKey::from_bytes(&bytes[0..CRYPTO_SECRETKEYBYTES])?;
+            let public_key = PublicKey::from_bytes(&bytes[CRYPTO_SECRETKEYBYTES..])?;
+            Ok(Self { public_key, secret_key })
+        }
+    }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        [self.secret_key.as_bytes(), self.public_key.as_bytes()].concat()
+    }
 }
 
 pub fn get_key_pair() -> Result<KeyPair, error::Error> {
@@ -99,7 +152,6 @@ pub fn sign(m: &Message, sk: &SecretKey) -> Result<SignedMessage, error::Error> 
     };
 
     Ok(SignedMessage {
-        smlen: smlen,
         data: signed_message,
     })
 }
@@ -115,7 +167,7 @@ pub fn verify_sign(m: &Message, sm: &SignedMessage, pk: &PublicKey) -> Result<i3
             m2.as_mut_ptr(),
             &mut m2len as *mut usize,
             sm.data.as_ptr(),
-            sm.smlen,
+            sm.data.len(),
             pk.data.as_ptr(),
         )
     }
